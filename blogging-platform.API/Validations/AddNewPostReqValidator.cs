@@ -8,9 +8,9 @@ using FluentValidation;
 
 namespace blogging_platform.API.Validations
 {
-    public class AddUserReqValidator:AbstractValidator<AddUserReqDto>
+    public class CreateUserReqValidator:AbstractValidator<CreateUserReqDto>
     {
-        public AddUserReqValidator(){
+        public CreateUserReqValidator(){
             RuleFor(x => x.FirstName).NotEmpty();
             RuleFor(x => x.LastName).NotEmpty();
             RuleFor(x => x.Email).NotEmpty().EmailAddress();

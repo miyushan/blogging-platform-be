@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace blogging_platform.API.Models.DTO
 {
-    public class AddPostReqDto
+    public class CreatePostReqDto
     {
         public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;

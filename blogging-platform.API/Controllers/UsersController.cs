@@ -18,12 +18,12 @@ namespace blogging_platform.API.Controllers
             this.dbContext = dbContext;
         }
     
-        // POST: Add new user
+        // POST: Create new user
         // POST: baseUrl/api/Users
         [HttpPost]
-        public IActionResult Add(AddUserReqDto user)
+        public IActionResult Create(CreateUserReqDto user)
         {
-            var validator = new AddUserReqValidator();
+            var validator = new CreateUserReqValidator();
             var results = validator.Validate(user);
 
             if (!results.IsValid)

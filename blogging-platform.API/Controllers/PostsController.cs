@@ -67,10 +67,10 @@ namespace blogging_platform.API.Controllers
             return Ok(postDto);
         }
     
-        // POST: Add new post
+        // POST: Create new post
         // POST: baseUrl/api/Posts
         [HttpPost]
-        public IActionResult Add([FromBody] AddPostReqDto post)
+        public IActionResult Create([FromBody] CreatePostReqDto post)
         {
             // Map DTO to domain model
             var newPost = new Post
