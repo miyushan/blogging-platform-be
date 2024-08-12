@@ -1,0 +1,19 @@
+# .NET Core ignore patterns
+bin/
+obj/
+.vs/
+.vscode/
+
+# Other ignore patterns
+*.csproj
+*.sln
+*.user
+*.suo
+*.ntvs*
+*.nupkg
+*.vsix
+
+# Ignore NuGet packages
+packages/
+
+# Ignore project-specific files
