@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using blogging_platform.API.Data;
 
@@ -11,9 +12,11 @@ using blogging_platform.API.Data;
 namespace bloggingplatform.API.Migrations
 {
     [DbContext(typeof(BloggingPlatformDbContext))]
-    partial class BloggingPlatformDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240812155416_addUserModel4")]
+    partial class addUserModel4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -108,8 +111,9 @@ namespace bloggingplatform.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserType")
-                        .HasColumnType("int");
+                    b.Property<string>("UserType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

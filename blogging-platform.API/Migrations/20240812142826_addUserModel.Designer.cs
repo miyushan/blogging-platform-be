@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using blogging_platform.API.Data;
 
@@ -11,9 +12,11 @@ using blogging_platform.API.Data;
 namespace bloggingplatform.API.Migrations
 {
     [DbContext(typeof(BloggingPlatformDbContext))]
-    partial class BloggingPlatformDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240812142826_addUserModel")]
+    partial class addUserModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,7 +116,7 @@ namespace bloggingplatform.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("blogging_platform.API.Models.Domain.Comment", b =>
