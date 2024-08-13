@@ -19,4 +19,8 @@ public class BloggingPlatformDbContext: DbContext
     public DbSet<Category> Categories { get; set; }
 
     public DbSet<Comment> Comments { get; set; }
+
+    public DbSet<AccessToken> AccessTokens { get; set; }
+
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 }

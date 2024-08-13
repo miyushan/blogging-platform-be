@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using blogging_platform.API.Models.Domain;
 using blogging_platform.API.Models.DTO;
 using blogging_platform.API.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace blogging_platform.API.Controllers
 {
@@ -31,7 +33,7 @@ namespace blogging_platform.API.Controllers
             foreach (var post in posts)
             {   
                 postDto.Add(new PostDto(){
-                    Id = post.Id,
+                    Id = post.PostId,
                     Title = post.Title,
                     Content = post.Content,
                     UserId = post.UserId,
@@ -58,7 +60,7 @@ namespace blogging_platform.API.Controllers
 
             // Map domain models to DTOs
             var postDto = new PostDto{
-                Id = post.Id,
+                Id = post.PostId,
                 Title = post.Title,
                 Content = post.Content,
                 UserId = post.UserId,
@@ -69,13 +71,14 @@ namespace blogging_platform.API.Controllers
     
         // POST: Create new post
         // POST: baseUrl/api/Posts
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public IActionResult Create([FromBody] CreatePostReqDto post)
         {
             // Map DTO to domain model
             var newPost = new Post
             {
-                Id = Guid.NewGuid(),
+                PostId = Guid.NewGuid(),
                 Title = post.Title,
                 Content = post.Content,
                 UserId = post.UserId,
@@ -88,7 +91,7 @@ namespace blogging_platform.API.Controllers
 
             // Return DTO
             var newPostDto = new PostDto{
-                Id = newPost.Id,
+                Id = newPost.PostId,
                 Title = newPost.Title,
                 Content = newPost.Content,
                 UserId = newPost.UserId,

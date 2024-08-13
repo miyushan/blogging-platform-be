@@ -5,7 +5,7 @@
 namespace bloggingplatform.API.Migrations
 {
     /// <inheritdoc />
-    public partial class addUserModel9 : Migration
+    public partial class changeentitymodels : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

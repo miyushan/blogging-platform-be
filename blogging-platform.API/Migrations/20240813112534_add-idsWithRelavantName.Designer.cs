@@ -12,8 +12,8 @@ using blogging_platform.API.Data;
 namespace bloggingplatform.API.Migrations
 {
     [DbContext(typeof(BloggingPlatformDbContext))]
-    [Migration("20240812164908_addUserModel6")]
-    partial class addUserModel6
+    [Migration("20240813112534_add-idsWithRelavantName")]
+    partial class addidsWithRelavantName
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,9 +25,32 @@ namespace bloggingplatform.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("blogging_platform.API.Models.Domain.AccessToken", b =>
+                {
+                    b.Property<Guid>("AccessTokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AccessTokenId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AccessTokens");
+                });
+
             modelBuilder.Entity("blogging_platform.API.Models.Domain.Category", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -35,14 +58,14 @@ namespace bloggingplatform.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("blogging_platform.API.Models.Domain.Comment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CommentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -53,7 +76,7 @@ namespace bloggingplatform.API.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("CommentId");
 
                     b.HasIndex("PostId");
 
@@ -62,7 +85,7 @@ namespace bloggingplatform.API.Migrations
 
             modelBuilder.Entity("blogging_platform.API.Models.Domain.Post", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("PostId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -80,7 +103,7 @@ namespace bloggingplatform.API.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("PostId");
 
                     b.HasIndex("CategoryId");
 
@@ -89,11 +112,38 @@ namespace bloggingplatform.API.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("blogging_platform.API.Models.Domain.User", b =>
+            modelBuilder.Entity("blogging_platform.API.Models.Domain.RefreshToken", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("RefreshTokenId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RefreshTokenId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("blogging_platform.API.Models.Domain.User", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccessToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -114,9 +164,20 @@ namespace bloggingplatform.API.Migrations
                     b.Property<int>("UserType")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("blogging_platform.API.Models.Domain.AccessToken", b =>
+                {
+                    b.HasOne("blogging_platform.API.Models.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("blogging_platform.API.Models.Domain.Comment", b =>
@@ -145,6 +206,17 @@ namespace bloggingplatform.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("blogging_platform.API.Models.Domain.RefreshToken", b =>
+                {
+                    b.HasOne("blogging_platform.API.Models.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

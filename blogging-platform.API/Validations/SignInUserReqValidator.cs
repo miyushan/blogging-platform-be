@@ -8,14 +8,11 @@ using FluentValidation;
 
 namespace blogging_platform.API.Validations
 {
-    public class CreateUserReqValidator:AbstractValidator<CreateUserReqDto>
+    public class SignInUserReqValidator : AbstractValidator<SignInUserReqDto>
     {
-        public CreateUserReqValidator(){
-            RuleFor(x => x.FirstName).NotEmpty();
-            RuleFor(x => x.LastName).NotEmpty();
+        public SignInUserReqValidator(){
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Password).NotEmpty().MinimumLength(6);
-            RuleFor(x => x.UserType).Must(x => Enum.IsDefined(typeof(UserType), x));
         }
     }
 }
