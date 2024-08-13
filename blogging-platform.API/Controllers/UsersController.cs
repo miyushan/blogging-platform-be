@@ -67,7 +67,7 @@ namespace blogging_platform.API.Controllers
 
         [Route("sign-in")]
         [HttpPost]
-        public async Task<IActionResult> UserLogin(SignInUserReqDto user)
+        public async Task<IActionResult> UserSignin(SignInUserReqDto user)
         {
             // Validate user
             var validator = new SignInUserReqValidator();
@@ -145,6 +145,40 @@ namespace blogging_platform.API.Controllers
 
             return Ok(new { token = accessToken.Token, refreshToken = refreshToken.Token });
         }
+
+        [Route("sign-out")]
+        [HttpPost]
+        public async Task<IActionResult> UserSignOut([FromHeader(Name = "user-id") ] string userId)
+        {
+            if(userId == null){
+                return Unauthorized();
+            }
+
+            var accessToken = await _dbContext.AccessTokens
+                .Where(t => t.UserId == Guid.Parse(userId))
+                .OrderByDescending(t => t.ExpiresAt)
+                .FirstOrDefaultAsync();
+
+            if (accessToken != null)
+            {
+                _dbContext.AccessTokens.Remove(accessToken);
+            }
+
+            var refreshToken = await _dbContext.RefreshTokens
+                .Where(t => t.UserId == Guid.Parse(userId))
+                .OrderByDescending(t => t.ExpiresAt)
+                .FirstOrDefaultAsync();
+
+            if (refreshToken != null)
+            {
+                _dbContext.RefreshTokens.Remove(refreshToken);
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [Route("get-refreshToken")]
