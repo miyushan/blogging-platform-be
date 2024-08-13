@@ -4,6 +4,7 @@ using blogging_platform.API.Models.DTO;
 using blogging_platform.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using blogging_platform.API.Validations;
 
 namespace blogging_platform.API.Controllers
 {
@@ -62,6 +63,13 @@ namespace blogging_platform.API.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] CreatePostReqDto post)
         {
+            var validator = new CreatePostReqValidator();
+            var results = validator.Validate(post);
+            if (!results.IsValid)
+            {
+                return BadRequest(results.Errors);
+            }
+
             var newPost = new Post
             {
                 PostId = Guid.NewGuid(),
