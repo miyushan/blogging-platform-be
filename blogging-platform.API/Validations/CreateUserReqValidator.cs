@@ -1,16 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using blogging_platform.API.Models.Domain;
 using blogging_platform.API.Models.DTO;
 using FluentValidation;
 
 namespace blogging_platform.API.Validations
 {
-    public class SignUpUserReqValidator : AbstractValidator<SignUpUserReqDto>
+    public class CreateUserReqValidator : AbstractValidator<CreateUserReqDto>
     {
-        public SignUpUserReqValidator(){
+        public CreateUserReqValidator(){
             RuleFor(x => x.FirstName).NotEmpty();
             RuleFor(x => x.LastName).NotEmpty();
             RuleFor(x => x.Email).NotEmpty().EmailAddress();

@@ -1,4 +1,3 @@
-using System;
 
 namespace blogging_platform.API.Models.Domain;
 

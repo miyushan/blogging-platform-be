@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using blogging_platform.API.Models.Domain;
 
 namespace blogging_platform.API.Models.DTO
 {
-    public class SignUpUserResDto
+    public class CreateUserResDto
     {
         public Guid Id { get; set; }
         public string FirstName { get; set; } = string.Empty;

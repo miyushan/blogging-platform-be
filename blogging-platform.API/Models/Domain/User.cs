@@ -1,8 +1,5 @@
-using System;
-using System.Runtime.Serialization;
 
 namespace blogging_platform.API.Models.Domain;
-
 
 public enum UserType
 {

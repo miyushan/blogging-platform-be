@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using blogging_platform.API.Models.Domain;
 using blogging_platform.API.Models.DTO;
 using FluentValidation;
 

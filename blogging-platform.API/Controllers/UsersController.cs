@@ -10,7 +10,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using FluentValidation;
 
 namespace blogging_platform.API.Controllers
 {
@@ -29,17 +28,15 @@ namespace blogging_platform.API.Controllers
     
         [Route("sign-up")]
         [HttpPost]
-        public IActionResult CreateNewUser(SignUpUserReqDto user)
+        public IActionResult CreateUser(CreateUserReqDto user)
         {
-            // Validate user
-            var validator = new SignUpUserReqValidator();
+            var validator = new CreateUserReqValidator();
             var results = validator.Validate(user);
             if (!results.IsValid)
             {
                 return BadRequest(results.Errors);
             }
 
-            // Create new user
             var newUser = new User
             {
                 UserId = Guid.NewGuid(),
@@ -52,8 +49,7 @@ namespace blogging_platform.API.Controllers
             _dbContext.Users.Add(newUser);
             _dbContext.SaveChanges();
 
-            // Return response with DTOs
-            var newUserDto = new SignUpUserResDto{
+            var newUserDto = new CreateUserResDto{
                 Id = newUser.UserId,
                 FirstName = newUser.FirstName,
                 LastName = newUser.LastName,

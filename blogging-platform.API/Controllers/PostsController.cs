@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using blogging_platform.API.Models.Domain;
 using blogging_platform.API.Models.DTO;
