@@ -6,7 +6,7 @@ using blogging_platform.API.Models.Domain;
 
 namespace blogging_platform.API.Models.DTO
 {
-    public class CreateUserReqDto
+    public class SignUpUserReqDto
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;

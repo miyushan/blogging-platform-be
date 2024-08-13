@@ -29,7 +29,7 @@ namespace blogging_platform.API.Controllers
     
         [Route("sign-up")]
         [HttpPost]
-        public IActionResult CreateNewUser(CreateUserReqDto user)
+        public IActionResult CreateNewUser(SignUpUserReqDto user)
         {
             // Validate user
             var validator = new SignUpUserReqValidator();

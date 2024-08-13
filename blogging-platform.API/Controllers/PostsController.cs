@@ -19,20 +19,15 @@ namespace blogging_platform.API.Controllers
             this.dbContext = dbContext;
         }
 
-        // GET: All posts
-        // GET: baseUrl/api/Posts
         [HttpGet]
         public IActionResult GetAll()
         {
-            // Get data from database
             var posts = dbContext.Posts.ToList();
 
-            // Map domain models to DTOs
-            var postDto = new List<PostDto>();
-            
+            var postsDto = new List<GetPostResDto>();
             foreach (var post in posts)
             {   
-                postDto.Add(new PostDto(){
+                postsDto.Add(new GetPostResDto(){
                     Id = post.PostId,
                     Title = post.Title,
                     Content = post.Content,
@@ -40,26 +35,20 @@ namespace blogging_platform.API.Controllers
                     CategoryId = post.CategoryId
                 });
             }
-
-            // Return DTOs
-            return Ok(posts);
+            return Ok(postsDto);
         }
 
-        // GET: Single post     
-        // GET: baseUrl/api/Posts/:id
         [HttpGet]
         [Route("{id:Guid}")]
         public IActionResult GetById([FromRoute] Guid id)
         {
-            // Get data from database
             var post = dbContext.Posts.Find(id);
             if (post == null)
             {
                 return NotFound();
             }
 
-            // Map domain models to DTOs
-            var postDto = new PostDto{
+            var postDto = new GetPostResDto{
                 Id = post.PostId,
                 Title = post.Title,
                 Content = post.Content,
@@ -69,13 +58,11 @@ namespace blogging_platform.API.Controllers
             return Ok(postDto);
         }
     
-        // POST: Create new post
-        // POST: baseUrl/api/Posts
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public IActionResult Create([FromBody] CreatePostReqDto post)
         {
-            // Map DTO to domain model
             var newPost = new Post
             {
                 PostId = Guid.NewGuid(),
@@ -85,12 +72,10 @@ namespace blogging_platform.API.Controllers
                 CategoryId = post.CategoryId
             };
 
-            // Add domain model to database
             dbContext.Posts.Add(newPost);
             dbContext.SaveChanges();
 
-            // Return DTO
-            var newPostDto = new PostDto{
+            var newPostDto = new GetPostResDto{
                 Id = newPost.PostId,
                 Title = newPost.Title,
                 Content = newPost.Content,

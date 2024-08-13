@@ -8,7 +8,7 @@ using FluentValidation;
 
 namespace blogging_platform.API.Validations
 {
-    public class SignUpUserReqValidator : AbstractValidator<CreateUserReqDto>
+    public class SignUpUserReqValidator : AbstractValidator<SignUpUserReqDto>
     {
         public SignUpUserReqValidator(){
             RuleFor(x => x.FirstName).NotEmpty();

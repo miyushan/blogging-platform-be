@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace blogging_platform.API.Models.DTO
 {
-    public class PostDto
+    public class GetPostResDto
     {
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
