@@ -32,7 +32,7 @@ namespace blogging_platform.API.Controllers
         public IActionResult CreateNewUser(CreateUserReqDto user)
         {
             // Validate user
-            var validator = new CreateUserReqValidator();
+            var validator = new SignUpUserReqValidator();
             var results = validator.Validate(user);
             if (!results.IsValid)
             {
