@@ -16,6 +16,4 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public UserType UserType { get; set; }
-    public string AccessToken { get; set; } = string.Empty;
-
 }
