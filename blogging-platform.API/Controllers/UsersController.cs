@@ -53,7 +53,7 @@ namespace blogging_platform.API.Controllers
             _dbContext.SaveChanges();
 
             // Return response with DTOs
-            var newUserDto = new UserDto{
+            var newUserDto = new SignUpUserResDto{
                 Id = newUser.UserId,
                 FirstName = newUser.FirstName,
                 LastName = newUser.LastName,
@@ -143,7 +143,20 @@ namespace blogging_platform.API.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return Ok(new { token = accessToken.Token, refreshToken = refreshToken.Token });
+            // Return response with DTOs
+            var newUserDto = new SignInUserResDto
+            {
+                Id = existingUser.UserId,
+                FirstName = existingUser.FirstName,
+                LastName = existingUser.LastName,
+                Email = existingUser.Email,
+                Password = existingUser.Password,
+                UserType = existingUser.UserType,
+                AccessToken = accessToken.Token,
+                RefreshToken = refreshToken.Token
+            };
+
+            return Ok(newUserDto);
         }
 
         [Route("sign-out")]
