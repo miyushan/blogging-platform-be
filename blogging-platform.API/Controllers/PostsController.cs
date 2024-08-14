@@ -87,7 +87,6 @@ namespace blogging_platform.API.Controllers
             return Ok(postDto);
         }
     
-
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public IActionResult Create([FromBody] CreatePostReqDto post)
