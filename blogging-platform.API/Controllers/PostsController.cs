@@ -5,6 +5,7 @@ using blogging_platform.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using blogging_platform.API.Validations;
+using System.Xml.Linq;
 
 namespace blogging_platform.API.Controllers
 {
@@ -35,10 +36,18 @@ namespace blogging_platform.API.Controllers
                     continue;
                 }
 
+                var comments = _dbContext.Comments.Where(c => c.PostId == post.PostId).Select(c => new GetCommentDto
+                {
+                    CommentId = c.CommentId,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt
+                }).ToList();
+
                 postsDto.Add(new GetPostResDto(){
                     PostId = post.PostId,
                     Title = post.Title,
                     Content = post.Content,
+                    Comments = comments,
                     Author =  new GetAuthorDto()
                     {
                         Id = author.UserId,
@@ -68,10 +77,18 @@ namespace blogging_platform.API.Controllers
                 return NotFound();
             }
 
+            var comments = _dbContext.Comments.Where(c => c.PostId == post.PostId).Select(c => new GetCommentDto
+            {
+                CommentId = c.CommentId,
+                Content = c.Content,
+                CreatedAt = c.CreatedAt
+            }).ToList();
+
             var postDto = new GetPostResDto{
                 PostId = post.PostId,
                 Title = post.Title,
                 Content = post.Content,
+                Comments = comments,
                 Author = new GetAuthorDto()
                 {
                     Id = author.UserId,
@@ -119,6 +136,7 @@ namespace blogging_platform.API.Controllers
                 PostId = newPost.PostId,
                 Title = newPost.Title,
                 Content = newPost.Content,
+                Comments = new List<GetCommentDto>(),
                 Author = new GetAuthorDto()
                 {
                     Id = author.UserId,
