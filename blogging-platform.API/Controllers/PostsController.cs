@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using blogging_platform.API.Validations;
 using System.Xml.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace blogging_platform.API.Controllers
 {
@@ -21,68 +22,87 @@ namespace blogging_platform.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllPosts()
+        public async Task<ActionResult<IEnumerable<GetPostResDto>>> GetAllPosts([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var posts = _dbContext.Posts.ToList();
+            try
+            {
+                var posts = await _dbContext.Posts
+                    .Skip((page-1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
 
-            var postsDto = new List<GetPostResDto>();
-            foreach (var post in posts)
-            {   
-                var author = _dbContext.Users.Find(post.UserId);
-                var category = _dbContext.Categories.Find(post.CategoryId);
-
-                if(author == null || category == null)
+                var postsDto = new List<GetPostResDto>();
+                foreach (var post in posts)
                 {
-                    continue;
-                }
+                    var author = _dbContext.Users.Find(post.UserId);
+                    var category = _dbContext.Categories.Find(post.CategoryId);
 
-                var comments = _dbContext.Comments.Where(c => c.PostId == post.PostId).Select(c => new GetCommentDto
-                {
-                    CommentId = c.CommentId,
-                    Content = c.Content,
-                    CreatedAt = c.CreatedAt
-                }).ToList();
-
-                postsDto.Add(new GetPostResDto(){
-                    PostId = post.PostId,
-                    Title = post.Title,
-                    Content = post.Content,
-                    Comments = comments,
-                    Author =  new GetAuthorDto()
+                    if (author == null || category == null)
                     {
-                        Id = author.UserId,
-                        FirstName = author.FirstName,
-                        LastName = author.LastName,
-
-                    },
-                    Category = new GetCategoryDto()
-                    {
-                        Id = category.CategoryId,
-                        Name = category.Name    
+                        continue;
                     }
-                });
+
+                    var comments = _dbContext.Comments
+                        .Where(c => c.PostId == post.PostId)
+                        .Select(c => new GetCommentDto
+                    {
+                        CommentId = c.CommentId,
+                        Content = c.Content,
+                        CreatedAt = c.CreatedAt
+                    }).ToList();
+
+                    postsDto.Add(new GetPostResDto()
+                    {
+                        PostId = post.PostId,
+                        Title = post.Title,
+                        Content = post.Content,
+                        Comments = comments,
+                        Author = new GetAuthorDto()
+                        {
+                            Id = author.UserId,
+                            FirstName = author.FirstName,
+                            LastName = author.LastName,
+
+                        },
+                        Category = new GetCategoryDto()
+                        {
+                            Id = category.CategoryId,
+                            Name = category.Name
+                        }
+                    });
+                }
+                return Ok(postsDto);
             }
-            return Ok(postsDto);
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpGet]
-        [Route("{id:Guid}")]
-        public IActionResult GetPostById([FromRoute] Guid id)
+        [HttpGet("{id:Guid}")]
+        public async Task<ActionResult<GetPostResDto>> GetPostById(Guid id)
         {
-            var post = _dbContext.Posts.Find(id);
-            var author = _dbContext.Users.Find(post?.UserId);
-            var category = _dbContext.Categories.Find(post?.CategoryId);
-            if (post == null || author == null || category == null)
+            var post = await _dbContext.Posts.FindAsync(id);
+            if (post == null)
             {
                 return NotFound();
             }
 
-            var comments = _dbContext.Comments.Where(c => c.PostId == post.PostId).Select(c => new GetCommentDto
+            var author = await _dbContext.Users.FindAsync(post.UserId);
+            var category = await _dbContext.Categories.FindAsync(post.CategoryId);
+            if (author == null || category == null)
             {
-                CommentId = c.CommentId,
-                Content = c.Content,
-                CreatedAt = c.CreatedAt
-            }).ToList();
+                return NotFound();
+            }
+
+            var comments = await _dbContext.Comments
+                .Where(c => c.PostId == post.PostId)
+                .Select(c => new GetCommentDto
+                {
+                    CommentId = c.CommentId,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt
+                }).ToListAsync();
 
             var postDto = new GetPostResDto{
                 PostId = post.PostId,
@@ -106,7 +126,7 @@ namespace blogging_platform.API.Controllers
     
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public IActionResult CreatePost([FromBody] CreatePostReqDto post)
+        public async Task<ActionResult<GetPostResDto>> CreatePost(CreatePostReqDto post)
         {
             var validator = new CreatePostReqValidator();
             var results = validator.Validate(post);
@@ -115,11 +135,12 @@ namespace blogging_platform.API.Controllers
                 return BadRequest(results.Errors);
             }
 
-            var author = _dbContext.Users.Find(post.UserId);
-            var category = _dbContext.Categories.Find(post.CategoryId);
+            var author = await _dbContext.Users.FindAsync(post.UserId);
+            var category = await _dbContext.Categories.FindAsync(post.CategoryId);
             if (author == null || category == null) {
                 return NotFound();
             }
+
             var newPost = new Post
             {
                 PostId = Guid.NewGuid(),
@@ -129,8 +150,8 @@ namespace blogging_platform.API.Controllers
                 CategoryId = post.CategoryId
             };
 
-            _dbContext.Posts.Add(newPost);
-            _dbContext.SaveChanges();
+            await _dbContext.Posts.AddAsync(newPost);
+            await _dbContext.SaveChangesAsync();
 
             var newPostDto = new GetPostResDto{
                 PostId = newPost.PostId,
@@ -154,9 +175,8 @@ namespace blogging_platform.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPut]
-        [Route("{postId:Guid}")]
-        public IActionResult EditPost([FromRoute] Guid postId, [FromBody] EditPostReqDto body)
+        [HttpPut("{postId:Guid}")]
+        public async Task<ActionResult<GetPostResDto>> EditPost([FromRoute] Guid postId, [FromBody] EditPostReqDto body)
         {
             var validator = new EditPostReqValidator();
             var results = validator.Validate(body);
@@ -165,10 +185,14 @@ namespace blogging_platform.API.Controllers
                 return BadRequest(results.Errors);
             }
 
-            var post = _dbContext.Posts.Find(postId);
-            var category = _dbContext.Categories.Find(body?.CategoryId);
-            var author = _dbContext.Users.Find(post?.UserId);
-            if (post == null || category == null || author == null)
+            var post = await _dbContext.Posts.FindAsync(postId);
+            var category = await _dbContext.Categories.FindAsync(body.CategoryId);
+            if (post == null || category == null)
+            {
+                return NotFound();
+            }
+            var author = await _dbContext.Users.FindAsync(post.UserId);
+            if (author == null)
             {
                 return NotFound();
             }
@@ -177,14 +201,17 @@ namespace blogging_platform.API.Controllers
             post.Content = body.Content;
             post.CategoryId = body.CategoryId;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
-            var comments = _dbContext.Comments.Where(c => c.PostId == post.PostId).Select(c => new GetCommentDto
-            {
-                CommentId = c.CommentId,
-                Content = c.Content,
-                CreatedAt = c.CreatedAt
-            }).ToList();
+            var comments = await _dbContext.Comments
+                .Where(c => c.PostId == post.PostId)
+                .Select(c => new GetCommentDto
+                {
+                    CommentId = c.CommentId,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt
+                })
+                .ToListAsync();
 
             var updatedPostDto = new GetPostResDto
             {
@@ -210,9 +237,8 @@ namespace blogging_platform.API.Controllers
 
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete]
-        [Route("{postId:Guid}")]
-        public IActionResult DeletePost([FromRoute] Guid postId, [FromBody] DeletePostReqDto body)
+        [HttpDelete("{postId:Guid}")]
+        public async Task<ActionResult> DeletePost([FromRoute] Guid postId, [FromBody] DeletePostReqDto body)
         {
             var validator = new DeletePostReqValidator();
             var results = validator.Validate(body);
@@ -221,7 +247,7 @@ namespace blogging_platform.API.Controllers
                 return BadRequest(results.Errors);
             }
 
-            var post = _dbContext.Posts.Find(postId);
+            var post = await _dbContext.Posts.FindAsync(postId);
             if(post == null)
             {
                 return NotFound();
@@ -233,8 +259,9 @@ namespace blogging_platform.API.Controllers
             }
 
             _dbContext.Remove(post);
-            _dbContext.SaveChanges();
-            return Ok();
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
