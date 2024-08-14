@@ -238,7 +238,7 @@ namespace blogging_platform.API.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{postId:Guid}")]
-        public async Task<ActionResult> DeletePost([FromRoute] Guid postId, [FromBody] DeletePostReqDto body)
+        public async Task<IActionResult> DeletePost([FromRoute] Guid postId, [FromBody] DeletePostReqDto body)
         {
             var validator = new DeletePostReqValidator();
             var results = validator.Validate(body);

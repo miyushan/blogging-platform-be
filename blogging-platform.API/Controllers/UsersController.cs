@@ -26,9 +26,8 @@ namespace blogging_platform.API.Controllers
             _configuration = configuration;
         }
     
-        [Route("sign-up")]
-        [HttpPost]
-        public IActionResult CreateUser(CreateUserReqDto user)
+        [HttpPost("sign-up")]
+        public async Task<ActionResult<CreateUserResDto>> CreateUser(CreateUserReqDto user)
         {
             var validator = new CreateUserReqValidator();
             var results = validator.Validate(user);
@@ -46,8 +45,8 @@ namespace blogging_platform.API.Controllers
                 Password = user.Password,
                 UserType = (UserType)Enum.Parse(typeof(UserType), user.UserType) 
             };
-            _dbContext.Users.Add(newUser);
-            _dbContext.SaveChanges();
+            await _dbContext.Users.AddAsync(newUser);
+            await _dbContext.SaveChangesAsync();
 
             var newUserDto = new CreateUserResDto{
                 Id = newUser.UserId,
@@ -61,8 +60,7 @@ namespace blogging_platform.API.Controllers
             return Ok(newUserDto);
         }
 
-        [Route("sign-in")]
-        [HttpPost]
+        [HttpPost("sign-in")]
         public async Task<IActionResult> UserSignin(SignInUserReqDto user)
         {
             // Validate user
@@ -155,8 +153,7 @@ namespace blogging_platform.API.Controllers
             return Ok(newUserDto);
         }
 
-        [Route("sign-out")]
-        [HttpPost]
+        [HttpPost("sign-out")]
         public async Task<IActionResult> UserSignOut([FromHeader(Name = "user-id") ] string userId)
         {
             if(userId == null){
@@ -190,8 +187,7 @@ namespace blogging_platform.API.Controllers
 
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Route("get-refreshToken")]
-        [HttpGet]
+        [HttpGet("get-refreshToken")]
         public async Task<IActionResult> GetRefreshToken(string refreshToken)
         {
             var existingRefreshToken = await _dbContext.RefreshTokens
