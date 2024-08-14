@@ -7,7 +7,6 @@ namespace blogging_platform.API.Validations
     {
         public EditPostReqValidator()
         {
-            RuleFor(x => x.PostId).NotEmpty();
             RuleFor(x => x.Title).NotEmpty();
             RuleFor(x => x.Content).NotEmpty();
             RuleFor(x => x.CategoryId).NotEmpty();

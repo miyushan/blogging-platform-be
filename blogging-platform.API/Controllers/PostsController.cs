@@ -155,7 +155,8 @@ namespace blogging_platform.API.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut]
-        public IActionResult EditPost([FromBody] EditPostReqDto body)
+        [Route("{postId:Guid}")]
+        public IActionResult EditPost([FromRoute] Guid postId, [FromBody] EditPostReqDto body)
         {
             var validator = new EditPostReqValidator();
             var results = validator.Validate(body);
@@ -164,7 +165,7 @@ namespace blogging_platform.API.Controllers
                 return BadRequest(results.Errors);
             }
 
-            var post = _dbContext.Posts.Find(body.PostId);
+            var post = _dbContext.Posts.Find(postId);
             var category = _dbContext.Categories.Find(body?.CategoryId);
             var author = _dbContext.Users.Find(post?.UserId);
             if (post == null || category == null || author == null)
@@ -204,7 +205,7 @@ namespace blogging_platform.API.Controllers
                 }
             };
 
-            return CreatedAtAction(nameof(GetPostById), new { id = body.PostId }, updatedPostDto);
+            return CreatedAtAction(nameof(GetPostById), new { id = postId }, updatedPostDto);
         }
 
 
