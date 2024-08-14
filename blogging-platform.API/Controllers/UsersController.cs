@@ -191,7 +191,7 @@ namespace blogging_platform.API.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [Route("get-refreshToken")]
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> GetRefreshToken(string refreshToken)
         {
             var existingRefreshToken = await _dbContext.RefreshTokens
