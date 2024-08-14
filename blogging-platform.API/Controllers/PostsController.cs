@@ -21,7 +21,7 @@ namespace blogging_platform.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAllPosts()
         {
             var posts = _dbContext.Posts.ToList();
 
@@ -67,7 +67,7 @@ namespace blogging_platform.API.Controllers
 
         [HttpGet]
         [Route("{id:Guid}")]
-        public IActionResult GetById([FromRoute] Guid id)
+        public IActionResult GetPostById([FromRoute] Guid id)
         {
             var post = _dbContext.Posts.Find(id);
             var author = _dbContext.Users.Find(post?.UserId);
@@ -106,7 +106,7 @@ namespace blogging_platform.API.Controllers
     
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public IActionResult Create([FromBody] CreatePostReqDto post)
+        public IActionResult CreatePost([FromBody] CreatePostReqDto post)
         {
             var validator = new CreatePostReqValidator();
             var results = validator.Validate(post);
@@ -150,8 +150,35 @@ namespace blogging_platform.API.Controllers
                 }
             };
 
-            return CreatedAtAction(nameof(GetById), new {id=newPostDto.PostId}, newPostDto);
+            return CreatedAtAction(nameof(GetPostById), new {id=newPostDto.PostId}, newPostDto);
         }
-    
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpDelete]
+        [Route("{postId:Guid}")]
+        public IActionResult DeletePost([FromRoute] Guid postId, [FromBody] DeletePostReqDto body)
+        {
+            var validator = new DeletePostReqValidator();
+            var results = validator.Validate(body);
+            if (!results.IsValid)
+            {
+                return BadRequest(results.Errors);
+            }
+
+            var post = _dbContext.Posts.Find(postId);
+            if(post == null)
+            {
+                return NotFound();
+            }
+
+            if(post.UserId != body.AuthorId)
+            {
+                return Forbid();
+            }
+
+            _dbContext.Remove(post);
+            _dbContext.SaveChanges();
+            return Ok();
+        }
     }
 }
