@@ -154,6 +154,61 @@ namespace blogging_platform.API.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPut]
+        public IActionResult EditPost([FromBody] EditPostReqDto body)
+        {
+            var validator = new EditPostReqValidator();
+            var results = validator.Validate(body);
+            if (!results.IsValid)
+            {
+                return BadRequest(results.Errors);
+            }
+
+            var post = _dbContext.Posts.Find(body.PostId);
+            var category = _dbContext.Categories.Find(body?.CategoryId);
+            var author = _dbContext.Users.Find(post?.UserId);
+            if (post == null || category == null || author == null)
+            {
+                return NotFound();
+            }
+
+            post.Title = body.Title;
+            post.Content = body.Content;
+            post.CategoryId = body.CategoryId;
+
+            _dbContext.SaveChanges();
+
+            var comments = _dbContext.Comments.Where(c => c.PostId == post.PostId).Select(c => new GetCommentDto
+            {
+                CommentId = c.CommentId,
+                Content = c.Content,
+                CreatedAt = c.CreatedAt
+            }).ToList();
+
+            var updatedPostDto = new GetPostResDto
+            {
+                PostId = post.PostId,
+                Title = post.Title,
+                Content = post.Content,
+                Comments = comments,
+                Author = new GetAuthorDto()
+                {
+                    Id = author.UserId,
+                    FirstName = author.FirstName,
+                    LastName = author.LastName,
+                },
+                Category = new GetCategoryDto()
+                {
+                    Id = category.CategoryId,
+                    Name = category.Name
+                }
+            };
+
+            return CreatedAtAction(nameof(GetPostById), new { id = body.PostId }, updatedPostDto);
+        }
+
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete]
         [Route("{postId:Guid}")]
         public IActionResult DeletePost([FromRoute] Guid postId, [FromBody] DeletePostReqDto body)
