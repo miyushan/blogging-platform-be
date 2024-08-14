@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using blogging_platform.API.Data;
 using blogging_platform.API.Models.DTO;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using blogging_platform.API.Models.Domain;
 using blogging_platform.API.Validations;
 
@@ -20,7 +18,7 @@ namespace blogging_platform.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateCommentReqDto comment)
+        public async Task<IActionResult> Create([FromBody] CreateCommentReqDto comment)
         {
             var validator = new CreateCommentReqValidator();
             var results = validator.Validate(comment);
@@ -29,7 +27,7 @@ namespace blogging_platform.API.Controllers
                 return BadRequest(results.Errors);
             }
 
-            var post = _dbContext.Posts.Find(comment.PostId);
+            var post = await _dbContext.Posts.FindAsync(comment.PostId);
             if (post == null)
             {
                 return NotFound();
@@ -43,8 +41,8 @@ namespace blogging_platform.API.Controllers
                 CreatedAt = DateTime.UtcNow,
             };
 
-            _dbContext.Comments.Add(newComment);
-            _dbContext.SaveChanges();
+            await _dbContext.Comments.AddAsync(newComment);
+            await _dbContext.SaveChangesAsync();
 
             var newCommentDto = new GetCommentResDto
             {
