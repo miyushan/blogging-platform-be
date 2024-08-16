@@ -22,7 +22,7 @@ namespace blogging_platform.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetPostResDto>>> GetAllPosts([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<GetPostResDto>>> GetAllPostsAsync([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
